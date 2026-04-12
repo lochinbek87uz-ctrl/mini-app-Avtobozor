@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AvtoBozor</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: var(--tg-theme-bg-color, #0d0d0d);
+  --card: var(--tg-theme-secondary-bg-color, #161616);
+  --card2: rgba(255,255,255,0.05);
+  --accent:#e8c84a;--accent2:#ff6b35;
+  --text: var(--tg-theme-text-color, #f0f0f0);
+  --muted: var(--tg-theme-hint-color, #888);
+  --border: rgba(255,255,255,0.08);
+  --r:14px; --green:#25d366;--blue:#2aabee;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom: env(safe-area-inset-bottom);}
+
+/* PROMO */
+.promo-banner{background:linear-gradient(135deg,#e8c84a,#ff6b35);margin:8px 12px;min-height:50px;padding:10px;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:#000;font-weight:800;cursor:pointer;transition:opacity .5s;font-size:13px;}
+
+/* HEADER - SAFE AREA */
+.header{background:var(--card);padding:10px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--accent);line-height:1;}
+.logo span{color:var(--accent2);}
+.add-btn{background:var(--accent);color:#000;border:none;border-radius:8px;padding:7px 13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+.add-btn:active{opacity:.85;transform:scale(.96);}
+.search-box{display:flex;gap:7px;}
+.search-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+.filter-btn{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;color:var(--text);font-size:14px;cursor:pointer;white-space:nowrap;}
+.filter-btn.active{border-color:var(--accent);color:var(--accent);}
+
+/* MODEL CATEGORIES — asosiy tugmalar */
+.cat-row{display:flex;gap:7px;padding:8px 12px 4px;overflow-x:auto;scrollbar-width:none;}
+.cat-row::-webkit-scrollbar{display:none;}
+.cat-btn{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;flex-shrink:0;transition:all .2s;}
+.cat-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(232,200,74,.12);}
+
+/* SECTION TABS */
+.section-tabs{display:flex;padding:0 12px;gap:10px;margin-bottom:10px;}
+.sec-tab{flex:1;padding:10px;text-align:center;background:var(--card);border-radius:12px;font-weight:800;font-size:13px;color:var(--muted);border:1px solid var(--border);transition:0.3s;}
+.sec-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(232,200,74,0.1);box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
+
+/* GLASS EFFECT */
+.glass{backdrop-filter: blur(15px);-webkit-backdrop-filter: blur(15px);background: rgba(255,255,255,0.03);border: 1px solid rgba(255,255,255,0.1);}
+
+/* MODEL PANEL (dropdown) */
+.model-panel{background:var(--card);border-bottom:1px solid var(--border);padding:10px 12px;display:none;}
+.model-panel.open{display:block;}
+.mp-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.mp-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.mp-tag{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;}
+.mp-tag.active{border-color:var(--accent);color:var(--accent);background:rgba(232,200,74,.1);}
+.mp-tag:active{transform:scale(.96);}
+
+/* REGION PANEL */
+.region-panel{background:var(--card);border-bottom:1px solid var(--border);padding:10px 12px;display:none;}
+.region-panel.open{display:block;}
+
+/* STATS */
+.stats-bar{display:flex;gap:8px;padding:6px 12px 8px;overflow-x:auto;scrollbar-width:none;}
+.stats-bar::-webkit-scrollbar{display:none;}
+.stat-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;}
+.stat-chip strong{color:var(--accent);font-size:12px;}
+
+/* ADS GRID */
+.ads-wrap{padding:0 10px 85px;}
+.ads-section-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:8px 2px 6px;}
+.ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+
+/* SERVICES LIST */
+.services-list{display:flex;flex-direction:column;gap:10px;}
+.service-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;}
+.service-icon{width:45px;height:45px;background:var(--card2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.service-info{flex:1;}
+.service-name{font-weight:800;font-size:15px;}
+.service-type{font-size:11px;color:var(--muted);text-transform:uppercase;}
+.service-dist{font-size:12px;color:var(--green);font-weight:700;}
+.service-call{background:var(--green);width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;}
+
+.ad-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .15s;animation:fadeUp .35s ease both;}
+.ad-card.vip-card{border-color:rgba(232,200,74,.35);box-shadow:0 0 12px rgba(232,200,74,.08);}
+.ad-card:active{transform:scale(.97);}
+.ad-img-wrap{position:relative;height:118px;background:var(--card2);overflow:hidden;}
+.ad-img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.ad-card:hover .ad-img{transform:scale(1.04);}
+.ad-fav{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;font-size:13px;}
+.ad-badge{position:absolute;top:8px;left:8px;font-size:9px;font-weight:800;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;}
+.ad-badge.vip{background:var(--accent);color:#000;}
+.ad-region{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;}
+.ad-dist{position:absolute;bottom:7px;left:7px;background:rgba(37,211,102,.85);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.ad-body{padding:9px 11px;}
+.ad-title{font-size:13px;font-weight:800;margin-bottom:3px;line-height:1.3;}
+.ad-price{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--accent);letter-spacing:1px;margin-bottom:5px;}
+.ad-meta{display:flex;gap:5px;flex-wrap:wrap;}
+.meta-chip{background:var(--card2);border-radius:5px;padding:2px 6px;font-size:9px;color:var(--muted);font-weight:600;}
+.ad-footer{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-top:1px solid var(--border);}
+.ad-time{font-size:9px;color:var(--muted);}
+.contact-btn{background:var(--accent2);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;cursor:pointer;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.vip-separator{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:4px 0;}
+.vip-separator::before,.vip-separator::after{content:'';flex:1;height:1px;background:rgba(232,200,74,.2);}
+.vip-sep-text{font-size:10px;font-weight:800;color:var(--accent);white-space:nowrap;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0 11px;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;gap:2px;transition:color .2s;}
+.nav-item.active{color:var(--accent);}
+.nav-icon{font-size:20px;line-height:1;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px 36px;max-height:93vh;overflow-y:auto;transform:translateY(60px);transition:transform .3s ease;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--accent);margin-bottom:14px;}
+
+/* FORM */
+.form-group{margin-bottom:12px;}
+.form-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block;}
+.form-input,.form-select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-select option{background:var(--card2);}
+.form-row{display:flex;gap:9px;}
+.form-row .form-group{flex:1;}
+.geo-btn{width:100%;background:var(--card2);border:2px dashed var(--border);border-radius:10px;padding:10px;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:border-color .2s;}
+.geo-btn.got{border-color:var(--green);color:var(--green);}
+.submit-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:12px;padding:13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-top:6px;transition:opacity .15s;}
+.submit-btn:active{opacity:.85;}
+.submit-btn:disabled{opacity:.45;cursor:not-allowed;}
+.cancel-btn{width:100%;background:var(--card2);color:var(--muted);border:none;border-radius:12px;padding:13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-top:8px;}
+
+/* FILTER PANEL */
+.filter-panel{position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:250;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+.filter-panel.open{opacity:1;pointer-events:all;}
+.filter-body{background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px 36px;max-height:85vh;overflow-y:auto;transform:translateY(60px);transition:transform .3s;}
+.filter-panel.open .filter-body{transform:translateY(0);}
+.filter-tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+.filter-tag{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;}
+.filter-tag.on{border-color:var(--accent);color:var(--accent);background:rgba(232,200,74,.1);}
+.filter-reset{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;}
+
+/* DETAIL VIEW */
+.detail-view{position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.detail-view.open{transform:translateX(0);}
+.detail-header{position:sticky;top:0;background:rgba(13,13,13,.92);backdrop-filter:blur(10px);padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:10;border-bottom:1px solid var(--border);}
+.back-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0;}
+.detail-imgs{position:relative;height:230px;background:var(--card2);}
+.detail-imgs img{width:100%;height:100%;object-fit:cover;}
+.detail-body{padding:14px;}
+.detail-price{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--accent);letter-spacing:2px;}
+.detail-name{font-size:19px;font-weight:800;margin:3px 0 10px;}
+.detail-specs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;}
+.spec-item{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px 11px;}
+.spec-label{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.spec-value{font-size:13px;font-weight:700;margin-top:2px;}
+.detail-desc{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px;font-size:13px;line-height:1.6;color:#ccc;margin-bottom:14px;}
+.detail-actions{display:flex;gap:9px;padding-bottom:25px;}
+.call-btn,.tg-btn{flex:1;border:none;border-radius:11px;padding:13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;color:#fff;}
+.call-btn{background:var(--green);}
+.tg-btn{background:var(--blue);}
+.dist-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--green);margin-bottom:12px;}
+
+/* PROFILE */
+.profile-view{padding:16px;}
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.profile-name{font-size:18px;font-weight:800;margin-bottom:4px;}
+.profile-sub{font-size:13px;color:var(--muted);}
+.invite-progress{background:var(--card2);border-radius:8px;height:8px;margin:10px 0 5px;overflow:hidden;}
+.invite-bar{background:linear-gradient(90deg,var(--accent),var(--accent2));height:100%;border-radius:8px;transition:width .5s;}
+.invite-text{font-size:11px;color:var(--muted);}
+.profile-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px;}
+
+/* PHOTO UPLOAD */
+.photo-upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:5px;}
+.photo-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.photo-item img{width:100%;height:100%;object-fit:cover;}
+.photo-remove{position:absolute;top:2px;right:2px;background:rgba(220,0,0,.85);color:#fff;border-radius:50%;width:19px;height:19px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;font-weight:bold;z-index:5;}
+.photo-add-btn{aspect-ratio:1;background:var(--card2);border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--muted);cursor:pointer;}
+
+/* EMPTY & SKELETON */
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);grid-column:1/-1;}
+.empty-state .emoji{font-size:44px;margin-bottom:10px;}
+.empty-state p{font-size:14px;font-weight:600;}
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:var(--r);height:230px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* TOAST */
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:9px 18px;border-radius:18px;z-index:999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* VIP badge inline */
+.vip-info-card{background:rgba(232,200,74,.08);border:1px solid rgba(232,200,74,.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:8px;}
+</style>
+</head>
+<body>
+
+<!-- PROMO -->
+<div class="promo-banner" id="promoBanner" onclick="handlePromoClick()">
+  <span id="promoText">🚀 REKLAMA BANNERI: AVTOBOZORDA ENG ZO'R NARXLAR!</span>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo">Avto<span>Bozor</span></div>
+    <button class="add-btn" onclick="openForm()">+ E'lon</button>
+  </div>
+  <div class="search-box">
+    <input class="search-input" id="searchInput" type="text" placeholder="🔍 Model, viloyat, narx..." oninput="onSearch(this.value)">
+    <button class="filter-btn" id="filterToggleBtn" onclick="openFilterPanel()">⚙️ Filtr</button>
+  </div>
+</div>
+
+<div class="section-tabs" style="margin-top:10px">
+  <div class="sec-tab active" id="tab-cars" onclick="switchSection('cars')">🚗 Mashinalar</div>
+  <div class="sec-tab" id="tab-services" onclick="switchSection('services')">🛠 Xizmatlar</div>
+</div>
+
+<!-- ASOSIY KATEGORIYA TUGMALARI (Model & Viloyat) -->
+<div class="cat-row" id="catRow">
+  <div class="cat-btn active" id="cat-all" onclick="setCat('all',this)">🚗 Barchasi</div>
+  <div class="cat-btn" id="cat-uzgm"     onclick="setCat('uzgm',this)">🇺🇿 UZ GM</div>
+  <div class="cat-btn" id="cat-inomarka" onclick="setCat('inomarka',this)">🌍 Inomarka</div>
+  <div class="cat-btn" id="cat-elektro"  onclick="setCat('elektro',this)">⚡ Elektromobil</div>
+  <div class="cat-btn" id="cat-cheap"    onclick="setCat('cheap',this)">💰 Arzonlar ($3k)</div>
+  <div class="cat-btn" id="cat-new"      onclick="setCat('new',this)">✨ Yangilar</div>
+  <div class="cat-btn" id="cat-yuk"      onclick="setCat('yuk',this)">🚛 Yuk tex</div>
+  <div class="cat-btn" id="cat-maxsus"   onclick="setCat('maxsus',this)">🚜 Maxsus tex</div>
+  <div class="cat-btn" id="cat-region"   onclick="setCat('region',this)">📍 Viloyat</div>
+</div>
+
+<!-- MODEL PANEL (uyali dropdown) -->
+<div class="model-panel" id="modelPanel">
+  <div id="mpContent"></div>
+</div>
+
+<!-- VILOYAT PANEL -->
+<div class="region-panel" id="regionPanel">
+  <div class="mp-title">Viloyatni tanlang</div>
+  <div class="mp-grid" id="regionGrid"></div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-chip">📋 <strong id="statTotal">0</strong> e'lon</div>
+  <div class="stat-chip">⭐️ <strong id="statVip">0</strong> VIP</div>
+  <div class="stat-chip" id="statFilter" style="display:none">🔍 <strong id="statFiltered">0</strong> topildi</div>
+</div>
+
+<!-- ADS CONTAINER -->
+<div class="ads-wrap" id="adsWrap">
+  <div class="ads-grid" id="adsContainer">
+    <div class="skeleton"></div>
+    <div class="skeleton" style="height:200px"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton" style="height:210px"></div>
+  </div>
+  <div class="services-wrap" id="servicesWrap" style="display:none">
+    <div class="service-add-card" onclick="openServiceForm()">
+       <span style="font-size:20px">➕</span><br>
+       <span style="font-size:13px; font-weight:800; color:var(--accent)">Xizmat qo'shish</span><br>
+       <span style="font-size:11px; color:var(--muted)">Usta, Shinomontaj yoki Zapravka</span>
+    </div>
+    <div class="services-list" id="servicesContainer"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="goNav('home',this)">
+    <span class="nav-icon">🏠</span>Bosh sahifa
+  </div>
+  <div class="nav-item" id="nav-favorites" onclick="goNav('favorites',this)">
+    <span class="nav-icon">❤️</span>Sevimli
+  </div>
+  <div class="nav-item" id="nav-myads" onclick="goNav('myads',this)">
+    <span class="nav-icon">📋</span>Mening
+  </div>
+  <div class="nav-item" id="nav-profile" onclick="goNav('profile',this)">
+    <span class="nav-icon">👤</span>Profil
+  </div>
+</div>
+
+<!-- ═══════════════ FILTER PANEL ═══════════════ -->
+<div class="filter-panel" id="filterPanel">
+  <div class="filter-body">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div class="modal-title" style="margin:0">Filtr</div>
+      <button class="filter-reset" onclick="resetFilters()">Tozalash</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Model</label>
+      <div class="filter-tag-grid" id="fpModelGrid"></div>
+    </div>
+    <div class="form-group" style="margin-top:10px">
+      <label class="form-label">Viloyat</label>
+      <div class="filter-tag-grid" id="fpRegionGrid"></div>
+    </div>
+    <div class="form-group" style="margin-top:10px">
+      <label class="form-label">Narx ($)</label>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <input class="form-input" type="number" id="fpPriceMin" placeholder="Min" oninput="previewFilter()">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <input class="form-input" type="number" id="fpPriceMax" placeholder="Max" oninput="previewFilter()">
+        </div>
+      </div>
+      <div id="fpPriceHint" style="font-size:11px;color:var(--accent);margin-top:4px;min-height:14px;"></div>
+    </div>
+    <div class="form-group" style="margin-top:10px">
+      <label class="form-label">Yil</label>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <input class="form-input" type="number" id="fpYearMin" placeholder="2000" oninput="previewFilter()">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <input class="form-input" type="number" id="fpYearMax" placeholder="2026" oninput="previewFilter()">
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:10px">
+      <label class="form-label">Yoqilg'i</label>
+      <div class="filter-tag-grid">
+        <div class="filter-tag" onclick="toggleFuelFilter('Benzin',this)">⛽️ Benzin</div>
+        <div class="filter-tag" onclick="toggleFuelFilter('Dizel',this)">🛢 Dizel</div>
+        <div class="filter-tag" onclick="toggleFuelFilter('Gaz',this)">💨 Gaz</div>
+        <div class="filter-tag" onclick="toggleFuelFilter('Benzin+Gaz',this)">⛽️💨 Benz+Gaz</div>
+        <div class="filter-tag" onclick="toggleFuelFilter('Elektr',this)">⚡️ Elektr</div>
+        <div class="filter-tag" onclick="toggleFuelFilter('Gibrid',this)">♻️ Gibrid</div>
+      </div>
+    </div>
+    <div id="fpPreviewText" style="font-size:12px;color:var(--muted);margin-top:10px;min-height:16px;text-align:center;"></div>
+    <button class="submit-btn" onclick="applyFilterAndClose()">Filterni qo'llash</button>
+    <button class="cancel-btn" onclick="closeFilterPanel()">Bekor qilish</button>
+  </div>
+</div>
+
+<!-- ═══════════════ ADD FORM MODAL ═══════════════ -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Yangi E'lon</div>
+
+    <div class="form-group">
+      <label class="form-label">Mashina modeli *</label>
+      <select class="form-select" id="f_model" onchange="checkModel(this.value)">
+        <option value="">— Tanlang —</option>
+        <optgroup label="🇺🇿 UZ GM Modellari">
+          <option value="Damas">🚐 Damas</option>
+          <option value="Labo">🚚 Labo</option>
+          <option value="Matiz">🚕 Matiz</option>
+          <option value="Spark">🚗 Spark</option>
+          <option value="Cobalt">⚪️ Cobalt</option>
+          <option value="Nexia">🚘 Nexia 1/2/3</option>
+          <option value="Onix">💎 Onix</option>
+          <option value="Gentra">🕶 Gentra / Lacetti</option>
+          <option value="Captiva">🏔 Captiva</option>
+          <option value="Malibu">🏁 Malibu</option>
+          <option value="Monza">🚀 Monza</option>
+          <option value="Tracker">🛰 Tracker</option>
+          <option value="Orlando">👨‍👩‍👧 Orlando</option>
+          <option value="Equinox">🌪 Equinox</option>
+          <option value="Trailblazer">🚔 Trailblazer</option>
+          <option value="Tahoe">👑 Tahoe</option>
+          <option value="Tico">🐣 Tico</option>
+        </optgroup>
+        <optgroup label="🌍 Inomarka">
+          <option value="Hyundai">🇰🇷 Hyundai</option>
+          <option value="Kia">🇰🇷 Kia</option>
+          <option value="Toyota">🇯🇵 Toyota</option>
+          <option value="BYD">🇨🇳 BYD</option>
+          <option value="Chery">🇨🇳 Chery</option>
+          <option value="Haval">🇨🇳 Haval</option>
+          <option value="Geely">🇨🇳 Geely</option>
+          <option value="Mercedes-Benz">🇩🇪 Mercedes-Benz</option>
+          <option value="BMW">🇩🇪 BMW</option>
+          <option value="Audi">🇩🇪 Audi</option>
+          <option value="Volkswagen">🇩🇪 Volkswagen</option>
+          <option value="Lada">🇷🇺 Lada / VAZ</option>
+        </optgroup>
+        <optgroup label="⚡ Elektromobil">
+          <option value="Tesla">⚡ Tesla</option>
+          <option value="BYD Elektr">⚡ BYD Elektr</option>
+          <option value="Volkswagen Elektr">⚡ VW Elektr (ID.4/6)</option>
+          <option value="Hyundai Elektr">⚡ Hyundai Elektr</option>
+          <option value="Kia Elektr">⚡ Kia Elektr</option>
+          <option value="Boshqa Elektr">⚡ Boshqa Elektr</option>
+        </optgroup>
+        <optgroup label="🚛 Yuk va Maxsus">
+          <option value="Fura">🚛 Fura</option>
+          <option value="Kamaz">🚛 Kamaz</option>
+          <option value="Isuzu">🚛 Isuzu</option>
+          <option value="Gazel">🚐 Gazel / Bongo</option>
+          <option value="Maxsus">🚜 Maxsus texnika</option>
+        </optgroup>
+        <option value="Boshqa">➕ Boshqa model</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="customModelGroup" style="display:none">
+      <label class="form-label">Modelni kiriting</label>
+      <input class="form-input" type="text" id="f_custom_model" placeholder="Model nomini yozing...">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Rasmlar (1–6 ta)</label>
+      <div class="photo-upload-grid" id="photoGrid">
+        <div class="photo-add-btn" onclick="document.getElementById('photoInput').click()"><span>+</span></div>
+      </div>
+      <input type="file" id="photoInput" multiple accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Yil *</label>
+        <input class="form-input" type="number" id="f_year" placeholder="2020" min="1990" max="2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rang</label>
+        <input class="form-input" type="text" id="f_color" placeholder="Oq">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Yurgan km</label>
+        <input class="form-input" type="number" id="f_mileage" placeholder="85000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Narx ($) *</label>
+        <input class="form-input" type="number" id="f_price" placeholder="12000">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Yoqilg'i turi *</label>
+      <select class="form-select" id="f_fuel_type">
+        <option value="">— Tanlang —</option>
+        <option value="Benzin">⛽️ Benzin</option>
+        <option value="Dizel">🛢 Dizel</option>
+        <option value="Gaz">💨 Gaz</option>
+        <option value="Benzin+Gaz">⛽️💨 Benzin+Gaz</option>
+        <option value="Elektr">⚡️ Elektr</option>
+        <option value="Gibrid">♻️ Gibrid</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Viloyat *</label>
+      <select class="form-select" id="f_region">
+        <option value="">— Tanlang —</option>
+        <option value="Toshkent">🏙 Toshkent</option>
+        <option value="Andijon">Andijon</option>
+        <option value="Farg'ona">Farg'ona</option>
+        <option value="Namangan">Namangan</option>
+        <option value="Samarqand">Samarqand</option>
+        <option value="Buxoro">Buxoro</option>
+        <option value="Navoiy">Navoiy</option>
+        <option value="Qashqadaryo">Qashqadaryo</option>
+        <option value="Surxondaryo">Surxondaryo</option>
+        <option value="Jizzax">Jizzax</option>
+        <option value="Sirdaryo">Sirdaryo</option>
+        <option value="Xorazm">Xorazm</option>
+        <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Qo'shimcha ma'lumot</label>
+      <input class="form-input" type="text" id="f_desc" placeholder="Holati yaxshi, garajda saqlangan...">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Telefon raqam *</label>
+      <input class="form-input" type="tel" id="f_phone" placeholder="+998901234567">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📍 Joylashuv (ixtiyoriy)</label>
+      <button class="geo-btn" id="geoBtn" onclick="getGeoLocation()">
+        <span>📍</span> <span id="geoBtnText">Mening joylashuvimni aniqlash</span>
+      </button>
+      <div id="geoStatus" style="font-size:11px;color:var(--muted);margin-top:5px;min-height:14px;"></div>
+    </div>
+
+    <div class="vip-info-card" id="vipInfoCard" style="display:none">
+      ⭐️ <span id="vipInfoText"></span>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitAd()">📤 E'lonni yuborish</button>
+    <button class="cancel-btn" onclick="closeForm()">Bekor qilish</button>
+  </div>
+</div>
+
+<!-- ═══════════════ DETAIL VIEW ═══════════════ -->
+<div class="detail-view" id="detailView">
+  <div class="detail-header">
+    <div class="back-btn" onclick="closeDetail()">←</div>
+    <span id="dh-title" style="font-weight:800;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+  </div>
+  <div class="detail-imgs">
+    <img id="d-img" src="" alt=""
+         onerror="this.src='https://via.placeholder.com/400x230/1e1e1e/555?text=Rasm+yo%27q'">
+  </div>
+  <div class="detail-body">
+    <div class="detail-price" id="d-price"></div>
+    <div class="detail-name" id="d-name"></div>
+    <div id="d-dist-badge" style="display:none" class="dist-badge">
+      📍 <span id="d-dist-text"></span>
+    </div>
+    <div class="detail-specs" id="d-specs"></div>
+    <div class="detail-desc" id="d-desc"></div>
+    <div class="detail-actions">
+      <button class="call-btn" id="d-call">📞 Qo'ng'iroq</button>
+      <button class="tg-btn" id="d-tg">✈️ Telegram</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// TELEGRAM INIT
+// ═══════════════════════════════════════
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready(); tg.expand();
+  try { tg.setHeaderColor('#161616'); } catch(e) {}
+  try { tg.setBackgroundColor('#0d0d0d'); } catch(e) {}
+}
+const TG_USER = tg?.initDataUnsafe?.user;
+
+// ═══════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════
+const API_BASE = window.location.origin;
+
+const REGIONS = [
+  "Toshkent","Andijon","Farg'ona","Namangan","Samarqand",
+  "Buxoro","Navoiy","Qashqadaryo","Surxondaryo",
+  "Jizzax","Sirdaryo","Xorazm","Qoraqalpog'iston"
+];
+
+// Model guruhlari
+const GM_MODELS = [
+  "Damas","Labo","Matiz","Spark","Cobalt","Nexia",
+  "Onix","Gentra","Captiva","Malibu","Monza","Tracker",
+  "Orlando","Equinox","Trailblazer","Tahoe","Tico"
+];
+const INOMARKA_MODELS = [
+  "Hyundai","Kia","Toyota","BYD","Chery","Haval","Geely",
+  "Mercedes-Benz","BMW","Audi","Volkswagen","Lada"
+];
+const ELEKTRO_MODELS = [
+  "Tesla","BYD Elektr","Volkswagen Elektr","Hyundai Elektr","Kia Elektr","Boshqa Elektr"
+];
+const YUK_MODELS = ["Fura","Kamaz","Isuzu","Gazel"];
+const MAXSUS_MODELS = ["Maxsus"];
+
+// Filtr paneli uchun barcha modellar
+const ALL_FILTER_MODELS = [
+  ...GM_MODELS, ...INOMARKA_MODELS, "Tesla", "Fura", "Maxsus"
+];
+
+const PROMO_ADS = [
+  {text:"🚀 REKLAMA: AVTOBOZORDA ENG ZO'R NARXLAR!", link:"https://t.me/AvtoBozori_Admini", bg:"linear-gradient(135deg,#e8c84a,#ff6b35)"},
+  {text:"🔥 VIP E'LONLAR: Mashinangizni 1 kunda soting!", link:"https://t.me/AvtoBozori_Admini", bg:"linear-gradient(135deg,#ff6b35,#e05c3a)"},
+  {text:"💎 REKLAMA BERISH: @AvtoBozori_Admini", link:"https://t.me/AvtoBozori_Admini", bg:"linear-gradient(135deg,#4caf7d,#2aabee)"}
+];
+const UZS_RATE        = 12800;
+const REFRESH_INTERVAL = 30000;
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let allAds       = [];
+let currentPage  = 'home';
+let searchQuery  = '';
+let myFavs       = [];
+let selPhotos    = [];
+let geoLat       = null, geoLng = null;
+let userLat      = null, userLng = null;
+let promoIdx     = 0;
+let refreshTimer = null;
+let currentSection = 'cars';
+let activeCat    = 'all'; // asosiy kategoriya
+
+let filt = {
+  model:'', region:'', priceMin:0, priceMax:0,
+  yearMin:0, yearMax:0, fuels:[]
+};
+
+try {
+  const saved = localStorage.getItem('avto_filter');
+  if (saved) filt = { ...filt, ...JSON.parse(saved) };
+} catch(e) {}
+try { myFavs = JSON.parse(localStorage.getItem('avto_favs') || '[]'); } catch(e) {}
+
+// Haptic feedback funksiyasi
+function haptic(type = 'light') {
+  if (tg && tg.HapticFeedback) {
+    tg.HapticFeedback.impactOccurred(type);
+  }
+}
+
+function switchSection(sec) {
+  haptic('medium');
+  currentSection = sec;
+  document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + sec).classList.add('active');
+  
+  if (sec === 'services') {
+    document.getElementById('adsContainer').style.display = 'none';
+    document.getElementById('servicesContainer').style.display = 'flex';
+    fetchServices();
+  } else {
+    document.getElementById('adsContainer').style.display = 'grid';
+    document.getElementById('servicesContainer').style.display = 'none';
+    renderHome();
+  }
+}
+
+// ═══════════════════════════════════════
+// KATEGORIYA TUGMALARI — Model va Viloyat
+// ═══════════════════════════════════════
+function setCat(cat, el) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  const mp = document.getElementById('modelPanel');
+  const rp = document.getElementById('regionPanel');
+  mp.classList.remove('open');
+  rp.classList.remove('open');
+
+  if (cat === 'region') {
+    buildRegionPanel();
+    rp.classList.add('open');
+    return;
+  }
+  if (['uzgm','inomarka','elektro','yuk','maxsus'].includes(cat)) {
+    buildModelPanel(cat);
+    mp.classList.add('open');
+  }
+
+  if (cat === 'cheap') { filt.priceMax = 3000; filt.priceMin = 0; } else if (cat !== 'region') { filt.priceMax = 0; }
+  
+  filt.model  = '';
+  filt.region = '';
+  try { localStorage.setItem('avto_filter', JSON.stringify(filt)); } catch(e){}
+  renderCurrentPage();
+}
+
+function buildModelPanel(cat) {
+  const mc = document.getElementById('mpContent');
+  let models = [];
+  let title  = '';
+
+  if (cat === 'uzgm')     { models = GM_MODELS;       title = '🇺🇿 UZ GM Modellari'; }
+  if (cat === 'inomarka') { models = INOMARKA_MODELS;  title = '🌍 Inomarka'; }
+  if (cat === 'elektro')  { models = ELEKTRO_MODELS;   title = '⚡ Elektromobillar'; }
+  if (cat === 'yuk')      { models = YUK_MODELS;       title = '🚛 Yuk texnikasi'; }
+  if (cat === 'maxsus')   { models = MAXSUS_MODELS;    title = '🚜 Maxsus texnika'; }
+
+  mc.innerHTML = `
+    <div class="mp-title">${title}</div>
+    <div class="mp-grid">
+      <div class="mp-tag ${filt.model===''?'active':''}" onclick="setModelFromPanel('',this)">Barchasi</div>
+      ${models.map(m => `
+        <div class="mp-tag ${filt.model===m?'active':''}" onclick="setModelFromPanel('${m}',this)">${m}</div>
+      `).join('')}
+    </div>`;
+}
+
+function setModelFromPanel(model, el) {
+  filt.model = model;
+  document.querySelectorAll('#mpContent .mp-tag').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  try { localStorage.setItem('avto_filter', JSON.stringify(filt)); } catch(e){}
+  renderCurrentPage();
+}
+
+function buildRegionPanel() {
+  const rg = document.getElementById('regionGrid');
+  rg.innerHTML = `
+    <div class="mp-tag ${filt.region===''?'active':''}" onclick="setRegionFromPanel('',this)">Barchasi</div>
+    ${REGIONS.map(r => `
+      <div class="mp-tag ${filt.region===r?'active':''}" onclick="setRegionFromPanel('${r}',this)">📍 ${r}</div>
+    `).join('')}`;
+}
+
+function setRegionFromPanel(region, el) {
+  filt.region = region;
+  document.querySelectorAll('#regionGrid .mp-tag').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  try { localStorage.setItem('avto_filter', JSON.stringify(filt)); } catch(e){}
+  renderCurrentPage();
+}
+
+// Kategoriyaga mos e'lonlarni filtrlaymiz
+function filterByCat(ads) {
+  if (activeCat === 'all') return ads;
+  if (activeCat === 'region') return ads; // region filt.region orqali ishlaydi
+  const map = {
+    uzgm:     GM_MODELS,
+    inomarka: INOMARKA_MODELS,
+    elektro:  ELEKTRO_MODELS,
+    yuk:      YUK_MODELS,
+    maxsus:   MAXSUS_MODELS
+  };
+  const allowed = map[activeCat] || [];
+  return ads.filter(a => {
+    const m = (a.model||'').toLowerCase();
+    return allowed.some(am => m.includes(am.toLowerCase()));
+  });
+}
+
+async function fetchServices() {
+  const container = document.getElementById('servicesContainer');
+  container.innerHTML = '<div class="skeleton" style="height:70px"></div><div class="skeleton" style="height:70px; margin-top:10px;"></div>';
+  try {
+    const res = await fetch(`${API_BASE}/api/services`);
+    const data = await res.json();
+    
+    if (data.length === 0) {
+      container.innerHTML = '<div class="empty-state">Hozircha xizmatlar yo\'q. Birinchilardan bo\'lib qo\'shing!</div>';
+      return;
+    }
+
+    const icons = { "shinomontaj": "🛞", "ustahona": "🛠", "zapravka": "⛽️", "zapchast": "⚙️" };
+
+    if (userLat) {
+      data.forEach(s => s.distance = calcDist(userLat, userLng, s.lat, s.lng));
+      data.sort((a,b) => a.distance - b.distance);
+    }
+
+    container.innerHTML = data.map(s => `
+      <div class="service-card glass">
+        <div class="service-icon">${icons[s.type] || '📍'}</div>
+        <div class="service-info">
+          <div class="service-name">${s.name}</div>
+          <div class="service-type">${s.type}</div>
+          ${s.distance ? `<div class="service-dist">📍 ${s.distance < 1 ? Math.round(s.distance*1000)+' m' : s.distance.toFixed(1)+' km'} uzoqlikda</div>` : ''}
+        </div>
+        <a href="tel:${s.phone}" class="service-call">📞</a>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state">Xizmatlarni yuklashda xato yuz berdi</div>';
+  });
+}
+
+// ═══════════════════════════════════════
+// FILTER PANEL BUILDER
+// ═══════════════════════════════════════
+function buildFilterPanel() {
+  const mg = document.getElementById('fpModelGrid');
+  const rg = document.getElementById('fpRegionGrid');
+  mg.innerHTML = ALL_FILTER_MODELS.map(m =>
+    `<div class="filter-tag ${filt.model===m?'on':''}" onclick="toggleModelFilter('${m}',this)">${m}</div>`
+  ).join('');
+  rg.innerHTML = REGIONS.map(r =>
+    `<div class="filter-tag ${filt.region===r?'on':''}" onclick="toggleRegionFilter('${r}',this)">${r}</div>`
+  ).join('');
+  if (filt.priceMin) document.getElementById('fpPriceMin').value = filt.priceMin;
+  if (filt.priceMax) document.getElementById('fpPriceMax').value = filt.priceMax;
+  if (filt.yearMin)  document.getElementById('fpYearMin').value  = filt.yearMin;
+  if (filt.yearMax)  document.getElementById('fpYearMax').value  = filt.yearMax;
+  document.querySelectorAll('.filter-panel .filter-tag').forEach(el => {
+    const fuel = el.getAttribute('onclick')?.match(/toggleFuelFilter\('(.+?)'/)?.[1];
+    if (fuel && filt.fuels.includes(fuel)) el.classList.add('on');
+  });
+  previewFilter();
+}
+
+function toggleModelFilter(v, el) {
+  filt.model = filt.model === v ? '' : v;
+  document.querySelectorAll('#fpModelGrid .filter-tag').forEach(t => t.classList.remove('on'));
+  if (filt.model) el.classList.add('on');
+  previewFilter();
+}
+function toggleRegionFilter(v, el) {
+  filt.region = filt.region === v ? '' : v;
+  document.querySelectorAll('#fpRegionGrid .filter-tag').forEach(t => t.classList.remove('on'));
+  if (filt.region) el.classList.add('on');
+  previewFilter();
+}
+function toggleFuelFilter(v, el) {
+  const idx = filt.fuels.indexOf(v);
+  if (idx > -1) { filt.fuels.splice(idx,1); el.classList.remove('on'); }
+  else          { filt.fuels.push(v);       el.classList.add('on'); }
+  previewFilter();
+}
+function previewFilter() {
+  filt.priceMin = parseInt(document.getElementById('fpPriceMin').value) || 0;
+  filt.priceMax = parseInt(document.getElementById('fpPriceMax').value) || 0;
+  filt.yearMin  = parseInt(document.getElementById('fpYearMin').value)  || 0;
+  filt.yearMax  = parseInt(document.getElementById('fpYearMax').value)  || 0;
+  const count   = runFilter(allAds).length;
+  document.getElementById('fpPreviewText').textContent =
+    count > 0 ? `${count} ta e'lon topildi` : "E'lon topilmadi";
+  const hint = document.getElementById('fpPriceHint');
+  let ht = '';
+  if (filt.priceMin > 0) ht += `Min: ${(filt.priceMin*UZS_RATE).toLocaleString()} so'm  `;
+  if (filt.priceMax > 0) ht += `Max: ${(filt.priceMax*UZS_RATE).toLocaleString()} so'm`;
+  hint.textContent = ht;
+}
+
+function resetFilters() {
+  filt = { model:'', region:'', priceMin:0, priceMax:0, yearMin:0, yearMax:0, fuels:[] };
+  activeCat = 'all';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('cat-all').classList.add('active');
+  document.getElementById('modelPanel').classList.remove('open');
+  document.getElementById('regionPanel').classList.remove('open');
+  buildFilterPanel();
+  ['fpPriceMin','fpPriceMax','fpYearMin','fpYearMax'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+function openFilterPanel() {
+  buildFilterPanel();
+  document.getElementById('filterPanel').classList.add('open');
+}
+function closeFilterPanel() {
+  document.getElementById('filterPanel').classList.remove('open');
+}
+function applyFilterAndClose() {
+  try { localStorage.setItem('avto_filter', JSON.stringify(filt)); } catch(e) {}
+  closeFilterPanel();
+  updateFilterBtn();
+  renderCurrentPage();
+}
+function updateFilterBtn() {
+  const hasFilter = filt.model || filt.region || filt.priceMin ||
+                    filt.priceMax || filt.yearMin || filt.yearMax || filt.fuels.length;
+  const btn = document.getElementById('filterToggleBtn');
+  btn.classList.toggle('active', !!hasFilter);
+  btn.textContent = hasFilter ? '⚙️ Filtr ✓' : '⚙️ Filtr';
+}
+
+// ═══════════════════════════════════════
+// CORE FILTER
+// ═══════════════════════════════════════
+function runFilter(ads) {
+  let res = filterByCat([...ads]);
+  if (filt.model)    res = res.filter(a => (a.model||'').toLowerCase().includes(filt.model.toLowerCase()));
+  if (filt.region)   res = res.filter(a => a.region === filt.region);
+  if (filt.priceMin) res = res.filter(a => (a.price||0) >= filt.priceMin);
+  if (filt.priceMax) res = res.filter(a => (a.price||0) <= filt.priceMax);
+  if (filt.yearMin)  res = res.filter(a => (a.year||0) >= filt.yearMin);
+  if (filt.yearMax)  res = res.filter(a => (a.year||0) <= filt.yearMax);
+  if (filt.fuels.length) res = res.filter(a => filt.fuels.includes(a.fuel_type));
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    res = res.filter(a =>
+      (a.model||'').toLowerCase().includes(q) ||
+      (a.region||'').toLowerCase().includes(q) ||
+      String(a.price||'').includes(q) ||
+      String(a.year||'').includes(q)
+    );
+  }
+  return res;
+}
+function onSearch(val) { searchQuery = val; renderCurrentPage(); }
+
+// ═══════════════════════════════════════
+// FETCH
+// ═══════════════════════════════════════
+async function fetchAds(silent=false) {
+  if (!silent) {
+    document.getElementById('adsContainer').innerHTML =
+      '<div class="skeleton"></div><div class="skeleton"></div>' +
+      '<div class="skeleton"></div><div class="skeleton" style="height:200px"></div>';
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/ads`, { cache:'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allAds = await res.json();
+    document.getElementById('statTotal').textContent = allAds.length;
+    document.getElementById('statVip').textContent   = allAds.filter(a=>a.vip).length;
+    renderCurrentPage();
+  } catch(e) {
+    if (!silent) {
+      document.getElementById('adsContainer').innerHTML =
+        `<div class="empty-state"><div class="emoji">📡</div><p>Server bilan bog'lanishda xato</p></div>`;
+    }
+    console.error(e);
+  }
+}
+
+async function fetchServices() {
+  const container = document.getElementById('servicesContainer');
+  container.innerHTML = '<div class="skeleton" style="height:60px"></div><div class="skeleton" style="height:60px"></div>';
+  try {
+    const res = await fetch(`${API_BASE}/api/services`);
+    const data = await res.json();
+    if (data.length === 0) {
+      container.innerHTML = '<div class="empty-state">Hali xizmatlar qo\'shilmagan</div>';
+      return;
+    }
+    
+    // Masofa bo'yicha saralash
+    if (userLat) {
+      data.forEach(s => s.distance = calcDist(userLat, userLng, s.lat, s.lng));
+      data.sort((a,b) => a.distance - b.distance);
+    }
+
+    container.innerHTML = data.map(s => `
+      <div class="service-card glass">
+        <div class="service-icon">${s.icon}</div>
+        <div class="service-info">
+          <div class="service-name">${s.name}</div>
+          <div class="service-type">${s.type}</div>
+          ${s.distance ? `<div class="service-dist">📍 ${s.distance.toFixed(1)} km uzoqlikda</div>` : ''}
+        </div>
+        <a href="tel:${s.phone}" class="service-call" onclick="haptic('heavy')">📞</a>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = 'Xatolik yuz berdi';
+  }
+}
+
+function startAutoRefresh() {
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => fetchAds(true), REFRESH_INTERVAL);
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function renderCurrentPage() {
+  if (currentPage === 'home')      renderHome();
+  else if (currentPage === 'favorites') renderFavorites();
+  else if (currentPage === 'myads')     renderMyAds();
+  else if (currentPage === 'profile')   renderProfile();
+}
+
+function renderHome() {
+  const filtered = runFilter(allAds);
+  const vips     = filtered.filter(a => a.vip).sort((a,b) => b.id - a.id);
+  const normals  = filtered.filter(a => !a.vip).sort((a,b) => b.id - a.id);
+
+  const hasFilter = filt.model || filt.region || filt.priceMin || filt.priceMax ||
+                    filt.yearMin || filt.yearMax || filt.fuels.length || searchQuery;
+  const statFilter = document.getElementById('statFilter');
+  if (hasFilter || activeCat !== 'all') {
+    statFilter.style.display = 'flex';
+    document.getElementById('statFiltered').textContent = filtered.length;
+  } else {
+    statFilter.style.display = 'none';
+  }
+
+  if (filtered.length === 0) {
+    document.getElementById('adsContainer').innerHTML =
+      `<div class="empty-state"><div class="emoji">🔍</div><p>Filtrga mos e'lon topilmadi</p></div>`;
+    return;
+  }
+
+  const topVips  = shuffleArr(vips).slice(0, 4);
+  const remVips  = shuffleArr(vips.filter(v => !topVips.includes(v)));
+  let html = '';
+
+  if (topVips.length > 0) {
+    html += `<div class="ads-section-title" style="grid-column:1/-1">⭐️ VIP E'LONLAR</div>`;
+    topVips.forEach(ad => { html += adCardHTML(ad); });
+    html += `<div class="vip-separator" style="grid-column:1/-1"><span class="vip-sep-text">— Barcha e'lonlar —</span></div>`;
+  }
+
+  let vipCursor = 0;
+  normals.forEach((ad, i) => {
+    html += adCardHTML(ad);
+    if ((i+1) % 12 === 0 && vipCursor < remVips.length) {
+      html += adCardHTML(remVips[vipCursor++]);
+    }
+  });
+
+  document.getElementById('adsContainer').innerHTML = html;
+}
+
+function renderFavorites() {
+  const favAds = allAds.filter(a => myFavs.includes(a.id));
+  if (favAds.length === 0) {
+    document.getElementById('adsContainer').innerHTML =
+      `<div class="empty-state"><div class="emoji">❤️</div><p>Sevimlilar bo'sh</p></div>`;
+    return;
+  }
+  document.getElementById('adsContainer').innerHTML = favAds.map(adCardHTML).join('');
+}
+
+async function renderMyAds() {
+  const userId = TG_USER?.id || 0;
+  document.getElementById('adsContainer').innerHTML =
+    '<div class="skeleton"></div><div class="skeleton"></div>';
+  try {
+    const res  = await fetch(`${API_BASE}/api/myads?user_id=${userId}`, { cache:'no-store' });
+    const mine = await res.json();
+    if (!mine.length) {
+      document.getElementById('adsContainer').innerHTML =
+        `<div class="empty-state"><div class="emoji">📋</div><p>Sizda hali e'lon yo'q</p></div>`;
+      return;
+    }
+    document.getElementById('adsContainer').innerHTML = mine.map(adCardHTML).join('');
+  } catch(e) {
+    document.getElementById('adsContainer').innerHTML =
+      `<div class="empty-state"><div class="emoji">⚠️</div><p>Yuklashda xato</p></div>`;
+  }
+}
+
+async function renderProfile() {
+  const userId = TG_USER?.id || 0;
+  document.getElementById('adsContainer').innerHTML = '';
+  let html = '<div class="profile-view">';
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/profile?user_id=${userId}`);
+    const prof = await res.json();
+    const inv  = prof.invite_count || 0;
+    const pct  = Math.min(100, (inv / 20) * 100);
+
+    html += `<div class="profile-card">
+      <div class="profile-name">${TG_USER?.first_name || prof.first_name || 'Foydalanuvchi'}</div>
+      <div class="profile-sub">@${TG_USER?.username || prof.username || '—'} · 📞 ${prof.phone || 'Raqam yo\'q'}</div>
+      <div style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;font-weight:700;color:var(--muted)">VIP uchun takliflar</span>
+          <span style="font-size:13px;font-weight:800;color:${inv>=20?'var(--accent)':'var(--text)'}">${inv}/20</span>
+        </div>
+        <div class="invite-progress"><div class="invite-bar" style="width:${pct}%"></div></div>
+        <div class="invite-text">${inv>=20
+          ? "✅ VIP huquqi mavjud! Yangi e'lon bersangiz avtomatik VIP beriladi."
+          : `${20-inv} ta taklif qoldi — VIP olish uchun do'stlarni guruhga taklif qiling`
+        }</div>
+      </div>
+    </div>`;
+  } catch(e) {
+    html += `<div class="profile-card"><div class="profile-name">${TG_USER?.first_name || 'Foydalanuvchi'}</div></div>`;
+  }
+
+  html += `<button class="profile-btn" onclick="copyInviteLink()">🔗 Do'stlarni taklif qilish (VIP)</button>`;
+  html += `<button class="profile-btn" style="background:var(--card2);color:var(--muted);margin-top:8px;" onclick="openForm()">+ Yangi e'lon berish</button>`;
+  html += '</div>';
+
+  const wrap = document.getElementById('adsWrap');
+  wrap.innerHTML = html;
+}
+
+async function copyInviteLink() {
+  const userId = TG_USER?.id || 0;
+  const link   = `https://t.me/avtobozor_bot?start=ref_${userId}`;
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('🔗 Havola nusxalandi!');
+  } catch(e) {
+    if (tg) {
+      tg.showPopup({
+        title: 'Taklif havolasi',
+        message: link,
+        buttons: [{ type: 'ok' }]
+      });
+    } else {
+      showToast('🔗 ' + link);
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// AD CARD HTML
+// ═══════════════════════════════════════
+function adCardHTML(ad) {
+  const isFav   = myFavs.includes(ad.id);
+  const km      = ad.mileage ? (ad.mileage / 1000).toFixed(0) + 'k' : '—';
+  const img     = ad.image   || 'https://via.placeholder.com/300x200/1e1e1e/555?text=Rasm+yo%27q';
+  const distTxt = (userLat && ad.lat && ad.lng)
+    ? calcDistLabel(userLat, userLng, ad.lat, ad.lng)
+    : '';
+
+  return `<div class="ad-card${ad.vip?' vip-card':''}" onclick="openDetail(${ad.id})">
+    <div class="ad-img-wrap">
+      <img class="ad-img" src="${img}" alt="${ad.model}" loading="lazy"
+           onerror="this.src='https://via.placeholder.com/300x200/1e1e1e/555?text=Rasm+yo%27q'">
+      <div class="ad-fav" onclick="event.stopPropagation();toggleFav(${ad.id})">${isFav?'❤️':'🤍'}</div>
+      ${ad.vip ? '<div class="ad-badge vip">⭐ VIP</div>' : ''}
+      <div class="ad-region">📍${ad.region||'—'}</div>
+      ${distTxt ? `<div class="ad-dist">📍${distTxt}</div>` : ''}
+    </div>
+    <div class="ad-body">
+      <div class="ad-title">${ad.model||'—'}</div>
+      <div class="ad-price">$${Number(ad.price||0).toLocaleString()}</div>
+      <div class="ad-meta">
+        <span class="meta-chip">📅${ad.year}</span>
+        <span class="meta-chip">🛣${km}</span>
+        <span class="meta-chip">⛽${ad.fuel_type||'—'}</span>
+      </div>
+    </div>
+    <div class="ad-footer">
+      <span class="ad-time">🕐${(ad.time||'').substring(0,10)}</span>
+      <button class="contact-btn" onclick="event.stopPropagation();contactUser(${ad.id})">Bog'lanish</button>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// DETAIL
+// ═══════════════════════════════════════
+function openDetail(id) {
+  const ad = allAds.find(a => a.id === id);
+  if (!ad) return;
+  const km = ad.mileage ? ad.mileage.toLocaleString() + ' km' : '—';
+  document.getElementById('dh-title').textContent = ad.model;
+  document.getElementById('d-img').src = ad.image ||
+    'https://via.placeholder.com/400x230/1e1e1e/555?text=Rasm+yo%27q';
+  document.getElementById('d-price').textContent = '$' + Number(ad.price||0).toLocaleString();
+  document.getElementById('d-name').textContent  = `${ad.model} · ${ad.year}`;
+  document.getElementById('d-specs').innerHTML   = `
+    <div class="spec-item"><div class="spec-label">Viloyat</div><div class="spec-value">📍 ${ad.region||'—'}</div></div>
+    <div class="spec-item"><div class="spec-label">Yil</div><div class="spec-value">📅 ${ad.year||'—'}</div></div>
+    <div class="spec-item"><div class="spec-label">Yurgan</div><div class="spec-value">🛣 ${km}</div></div>
+    <div class="spec-item"><div class="spec-label">Yoqilg'i</div><div class="spec-value">⛽️ ${ad.fuel_type||'—'}</div></div>
+    <div class="spec-item"><div class="spec-label">Rang</div><div class="spec-value">🎨 ${ad.color||'—'}</div></div>
+    <div class="spec-item"><div class="spec-label">Aloqa</div><div class="spec-value">📞 ${ad.phone||'—'}</div></div>`;
+  document.getElementById('d-desc').textContent = ad.desc || '—';
+
+  const distBadge = document.getElementById('d-dist-badge');
+  const distText  = document.getElementById('d-dist-text');
+  if (userLat && ad.lat && ad.lng) {
+    const dist = calcDist(userLat, userLng, ad.lat, ad.lng);
+    distText.textContent = dist < 1
+      ? `${Math.round(dist*1000)} m uzoqlikda`
+      : `${dist.toFixed(1)} km uzoqlikda`;
+    distBadge.style.display = 'inline-flex';
+  } else {
+    distBadge.style.display = 'none';
+  }
+
+  document.getElementById('d-call').onclick = () => {
+    if (tg) tg.openLink('tel:' + ad.phone); else window.open('tel:' + ad.phone);
+  };
+  document.getElementById('d-tg').onclick = () => contactUser(id);
+  document.getElementById('detailView').classList.add('open');
+  if (tg) tg.BackButton.show();
+}
+function closeDetail() {
+  document.getElementById('detailView').classList.remove('open');
+  if (tg) tg.BackButton.hide();
+}
+
+// ═══════════════════════════════════════
+// CONTACT
+// ═══════════════════════════════════════
+function contactUser(id) {
+  const ad = allAds.find(a => a.id === id);
+  if (!ad) return;
+  if (tg) tg.sendData(JSON.stringify({ action:'contact', adId:id, phone:ad.phone }));
+  else showToast('📞 ' + ad.phone);
+}
+
+// ═══════════════════════════════════════
+// FAVORITES
+// ═══════════════════════════════════════
+function toggleFav(id) {
+  const idx = myFavs.indexOf(id);
+  if (idx > -1) { myFavs.splice(idx,1); showToast('💔 Sevimlilardan olib tashlandi'); }
+  else          { myFavs.push(id);      showToast("❤️ Sevimlilarga qo'shildi"); }
+  try { localStorage.setItem('avto_favs', JSON.stringify(myFavs)); } catch(e) {}
+  renderCurrentPage();
+}
+
+// ═══════════════════════════════════════
+// BOTTOM NAV
+// ═══════════════════════════════════════
+function goNav(page, el) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  const wrap = document.getElementById('adsWrap');
+  if (page !== 'profile') {
+    wrap.innerHTML = '<div class="ads-grid" id="adsContainer"></div>';
+  }
+  renderCurrentPage();
+}
+
+// ═══════════════════════════════════════
+// FORM
+// ═══════════════════════════════════════
+function checkModel(v) {
+  document.getElementById('customModelGroup').style.display =
+    v === 'Boshqa' ? 'block' : 'none';
+}
+function openForm() {
+  // VIP ma'lumotini ko'rsatish
+  const userId = TG_USER?.id || 0;
+  if (userId) {
+    fetch(`${API_BASE}/api/profile?user_id=${userId}`)
+      .then(r => r.json())
+      .then(prof => {
+        const inv   = prof.invite_count || 0;
+        const card  = document.getElementById('vipInfoCard');
+        const txt   = document.getElementById('vipInfoText');
+        if (inv >= 20) {
+          card.style.display = 'flex';
+          txt.textContent    = "E'lon VIP bilan chiqadi! (48 soat)";
+        } else if (inv >= 10) {
+          card.style.display = 'flex';
+          txt.textContent    = "E'lon VIP bilan chiqadi! (24 soat)";
+        } else {
+          card.style.display = 'none';
+        }
+      }).catch(() => {});
+  }
+  document.getElementById('formModal').classList.add('open');
+}
+function closeForm() {
+  document.getElementById('formModal').classList.remove('open');
+}
+
+function getGeoLocation() {
+  const btn  = document.getElementById('geoBtn');
+  const stat = document.getElementById('geoStatus');
+  if (!navigator.geolocation) {
+    stat.textContent = "❌ Brauzer joylashuvni qo'llab-quvvatlamaydi";
+    return;
+  }
+  btn.innerHTML = '<span>⏳</span> <span>Aniqlanmoqda...</span>';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      geoLat = pos.coords.latitude;
+      geoLng = pos.coords.longitude;
+      btn.className = 'geo-btn got';
+      btn.innerHTML = `<span>✅</span> <span>Joylashuv aniqlandi (${geoLat.toFixed(4)}, ${geoLng.toFixed(4)})</span>`;
+      stat.textContent = '';
+      showToast('📍 Joylashuv aniqlandi!');
+    },
+    err => {
+      btn.innerHTML = '<span>📍</span> <span>Mening joylashuvimni aniqlash</span>';
+      stat.textContent = err.code === 1
+        ? '⚠️ Joylashuvga ruxsat berilmadi'
+        : '⚠️ Joylashuv aniqlanmadi';
+    },
+    { timeout:10000, enableHighAccuracy:true }
+  );
+}
+
+function detectUserLocation() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; },
+    () => {},
+    { timeout:8000 }
+  );
+}
+
+async function submitAd() {
+  let model  = document.getElementById('f_model').value;
+  const cust = document.getElementById('f_custom_model').value.trim();
+  const year  = document.getElementById('f_year').value;
+  const price = document.getElementById('f_price').value;
+  const region= document.getElementById('f_region').value;
+  const fuel  = document.getElementById('f_fuel_type').value;
+  const phone = document.getElementById('f_phone').value;
+  const mile  = document.getElementById('f_mileage').value;
+  const color = document.getElementById('f_color').value;
+  const desc  = document.getElementById('f_desc').value;
+
+  if (model === 'Boshqa' && cust) model = cust;
+  if (!model || !year || !price || !region || !fuel || !phone) {
+    showToast("⚠️ Barcha majburiy (*) maydonlarni to'ldiring");
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled    = true;
+  btn.textContent = '⏳ Yuborilmoqda...';
+
+  try {
+    const adData = {
+      user_id: TG_USER?.id || 0,
+      model,
+      year:    parseInt(year),
+      price:   parseInt(price),
+      region,
+      mileage: parseInt(mile) || 0,
+      color:   color || '—',
+      phone,
+      desc:    desc || '—',
+      fuel_type: fuel,
+      images:  selPhotos,
+      lat:     geoLat,
+      lng:     geoLng
+    };
+    const res    = await fetch(`${API_BASE}/api/submit`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ ad: adData })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      const msg = result.vip
+        ? `⭐️ E'lon VIP bilan qabul qilindi! (${result.vip_hours} soat) ID: ${result.ad_id}`
+        : `✅ E'lon qabul qilindi! ID: ${result.ad_id}`;
+      showToast(msg);
+      closeForm();
+      clearForm();
+      await fetchAds(true);
+    } else {
+      showToast('❌ ' + (result.message || 'Xatolik yuz berdi'));
+    }
+  } catch(e) {
+    showToast("❌ Server bilan bog'lanishda xato");
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = "📤 E'lonni yuborish";
+  }
+}
+
+function clearForm() {
+  ['f_model','f_year','f_price','f_region','f_fuel_type',
+   'f_phone','f_mileage','f_color','f_desc','f_custom_model']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  document.getElementById('customModelGroup').style.display = 'none';
+  document.getElementById('vipInfoCard').style.display      = 'none';
+  selPhotos = [];
+  renderPhotoGrid();
+  geoLat = null; geoLng = null;
+  const btn = document.getElementById('geoBtn');
+  btn.className = 'geo-btn';
+  btn.innerHTML = '<span>📍</span> <span>Mening joylashuvimni aniqlash</span>';
+  document.getElementById('geoStatus').textContent = '';
+}
+
+// ═══════════════════════════════════════
+// PHOTO UPLOAD
+// ═══════════════════════════════════════
+function handlePhotoSelect(e) {
+  const files = Array.from(e.target.files);
+  if (selPhotos.length + files.length > 6) { showToast("⚠️ Maksimal 6 ta rasm"); return; }
+  files.forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => { selPhotos.push(ev.target.result); renderPhotoGrid(); };
+    r.readAsDataURL(f);
+  });
+  e.target.value = '';
+}
+function renderPhotoGrid() {
+  const g   = document.getElementById('photoGrid');
+  const add = `<div class="photo-add-btn" onclick="document.getElementById('photoInput').click()"><span>+</span></div>`;
+  let html  = selPhotos.map((src,i) => `
+    <div class="photo-item">
+      <img src="${src}">
+      <div class="photo-remove" onclick="removePhoto(${i})">×</div>
+    </div>`).join('');
+  if (selPhotos.length < 6) html += add;
+  g.innerHTML = html;
+}
+function removePhoto(i) { selPhotos.splice(i,1); renderPhotoGrid(); }
+
+// ═══════════════════════════════════════
+// GEO HELPERS
+// ═══════════════════════════════════════
+function calcDist(lat1, lon1, lat2, lon2) {
+  const R    = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a    = Math.sin(dLat/2)**2 +
+               Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+               Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function calcDistLabel(lat1, lon1, lat2, lon2) {
+  const d = calcDist(lat1, lon1, lat2, lon2);
+  return d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+}
+
+// ═══════════════════════════════════════
+// PROMO
+// ═══════════════════════════════════════
+function handlePromoClick() {
+  const ad = PROMO_ADS[promoIdx];
+  if (tg) tg.openLink(ad.link); else window.open(ad.link, '_blank');
+}
+function startPromoRotation() {
+  const banner = document.getElementById('promoBanner');
+  const pText  = document.getElementById('promoText');
+  setInterval(() => {
+    promoIdx = (promoIdx+1) % PROMO_ADS.length;
+    banner.style.opacity = '0';
+    setTimeout(() => {
+      pText.innerText       = PROMO_ADS[promoIdx].text;
+      banner.style.background = PROMO_ADS[promoIdx].bg;
+      banner.style.opacity  = '1';
+    }, 500);
+  }, 7000);
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i=a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════
+// TELEGRAM BACK BUTTON
+// ═══════════════════════════════════════
+if (tg) {
+  tg.BackButton.onClick(() => {
+    if (document.getElementById('detailView').classList.contains('open'))  { closeDetail();       return; }
+    if (document.getElementById('formModal').classList.contains('open'))   { closeForm();         return; }
+    if (document.getElementById('filterPanel').classList.contains('open')) { closeFilterPanel();  return; }
+  });
+}
+
+document.getElementById('formModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('formModal')) closeForm();
+});
+document.getElementById('filterPanel').addEventListener('click', e => {
+  if (e.target === document.getElementById('filterPanel')) closeFilterPanel();
+});
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+updateFilterBtn();
+detectUserLocation();
+fetchAds();
+startPromoRotation();
+startAutoRefresh();
+
+// Deep link
+const urlParams = new URLSearchParams(window.location.search);
+const adId = urlParams.get('ad');
+if (adId) {
+  const waitForAds = setInterval(() => {
+    if (allAds.length > 0) {
+      clearInterval(waitForAds);
+      openDetail(parseInt(adId));
+    }
+  }, 200);
+  setTimeout(() => clearInterval(waitForAds), 5000);
+}
+</script>
+</body>
+</html>
